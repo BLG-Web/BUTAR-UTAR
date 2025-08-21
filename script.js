@@ -1,13 +1,13 @@
 // Gambar hadiah (bisa diganti dengan gambar lebih keren di folder assets)
 const hadiahList = [
-  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'BONUS 12.000 POIN'},
-  {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'BONUS 8.000 POIN'},
-  {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'BONUS 7.000 POIN'},
-  {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'BONUS 2.000 POIN'},
-  {img: 'https://imgur.com/pRHplsF.png', label: 'PENYIHIR', hadiah: 'BONUS 6.000 POIN'},
-  {img: 'https://imgur.com/BE1yANw.png', label: 'BANDITO', hadiah: 'JACKPOT 15.000.000 POIN'},
-  {img: 'https://imgur.com/qFkxSgZ.png', label: 'BABI', hadiah: 'BONUS 4.000 POIN'},
-  {img: 'https://imgur.com/Ml9UQmv.png', label: 'PRINCESS', hadiah: 'BONUS 3.000 POIN'}
+  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'Rp 120.000', nominal: 120000},
+  {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'Rp 80.000', nominal: 80000},
+  {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'Rp 70.000', nominal: 70000},
+  {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'Rp 20.000', nominal: 20000},
+  {img: 'https://imgur.com/pRHplsF.png', label: 'PENYIHIR', hadiah: 'Rp 60.000', nominal: 60000},
+  {img: 'https://imgur.com/BE1yANw.png', label: 'BANDITO', hadiah: 'Rp 1.500.000', nominal: 1500000},
+  {img: 'https://imgur.com/qFkxSgZ.png', label: 'BABI', hadiah: 'Rp 40.000', nominal: 40000},
+  {img: 'https://imgur.com/Ml9UQmv.png', label: 'PRINCESS', hadiah: 'Rp 30.000', nominal: 30000}
 ];
 const LOGO_URL = 'https://imgur.com/pmrp0zR.png';
 
@@ -176,6 +176,57 @@ btnClaim.onclick = ()=>{
   btnClaim.textContent = 'Skor Tersimpan! ✅';
   setStatus('Terima kasih sudah bermain! Game ini hanya untuk hiburan.');
 };
+
+// Fungsi untuk menampilkan popup hadiah
+function showHadiahPopup(hadiah, nominal) {
+  const popup = document.getElementById('hadiahPopup');
+  const amountEl = document.getElementById('popupAmount');
+  const subtitleEl = document.getElementById('popupSubtitle');
+  
+  // Format rupiah dengan titik pemisah
+  const formattedAmount = `Rp ${nominal.toLocaleString('id-ID')}`;
+  
+  amountEl.textContent = formattedAmount;
+  subtitleEl.textContent = `Hadiah simulasi dari ${hadiah.split(' ')[1] || 'kartu'} yang Anda pilih!`;
+  
+  // Show popup
+  popup.classList.add('show');
+  
+  // Create fireworks effect
+  createFireworks();
+  
+  // Play celebration sound
+  if (window.playWinSound) window.playWinSound();
+}
+
+function closeHadiahPopup() {
+  const popup = document.getElementById('hadiahPopup');
+  popup.classList.remove('show');
+}
+
+function createFireworks() {
+  const container = document.getElementById('fireworksContainer');
+  container.innerHTML = ''; // Clear previous fireworks
+  
+  for (let i = 0; i < 15; i++) {
+    setTimeout(() => {
+      const firework = document.createElement('div');
+      firework.className = 'firework';
+      firework.style.left = Math.random() * 100 + '%';
+      firework.style.top = Math.random() * 100 + '%';
+      firework.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+      
+      container.appendChild(firework);
+      
+      // Remove firework after animation
+      setTimeout(() => {
+        if (firework.parentNode) {
+          firework.parentNode.removeChild(firework);
+        }
+      }, 1000);
+    }, i * 100);
+  }
+}
 
 // Professional animation enhancements
 function addProfessionalEffects() {
@@ -430,18 +481,20 @@ function enhancedEnablePilihKartu(arr) {
         if (window.playWinSound) window.playWinSound();
       }, 400);
       cards.forEach(c => c.onclick = null);
+      
+      // Show popup instead of inline message
+      setTimeout(() => {
+        showHadiahPopup(h.label, h.nominal);
+      }, 800);
+      
       const msgElement = document.getElementById('msg');
       msgElement.classList.add('msg-fade-in');
-      msgElement.innerHTML = h.hadiah.includes('BONUS') || h.hadiah.includes('JACKPOT')
-        ? `🎉 <span style="color:#ffdc00; text-shadow: 0 0 10pxrgba(255, 221, 0, 0.32);">${h.hadiah}</span>`
-        : `<span style="color:#ff3a3a; text-shadow: 0 0 10pxrgba(248, 66, 66, 0.38);">${h.hadiah}</span>`;
-      setStatus('Selamat! Klik CLAIM untuk menyimpan skor Anda.');
+      msgElement.innerHTML = `🎉 <span style="color:#ffdc00;">Klik di atas untuk melihat hadiah!</span>`;
+      setStatus('Popup hadiah telah muncul! Lihat hadiah simulasi Anda.');
+      
+      // Hide claim button since we use popup now
       const claimBtn = document.getElementById('btnClaim');
-      claimBtn.style.display = 'block';
-      claimBtn.classList.add('btn-bounce');
-      setTimeout(() => {
-        claimBtn.classList.remove('btn-bounce');
-      }, 600);
+      claimBtn.style.display = 'none';
       simpanLogSpin(currentUid, currentTok, `Kartu ${String.fromCharCode(65 + idx)}`, h.hadiah, h.label);
     };
   });
