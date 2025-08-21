@@ -1,13 +1,13 @@
 // Gambar hadiah (bisa diganti dengan gambar lebih keren di folder assets)
 const hadiahList = [
-  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'Rp 120.000', nominal: 120000},
-  {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'Rp 80.000', nominal: 80000},
-  {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'Rp 70.000', nominal: 70000},
-  {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'Rp 20.000', nominal: 20000},
-  {img: 'https://imgur.com/pRHplsF.png', label: 'PENYIHIR', hadiah: 'Rp 60.000', nominal: 60000},
-  {img: 'https://imgur.com/BE1yANw.png', label: 'BANDITO', hadiah: 'Rp 1.500.000', nominal: 1500000},
-  {img: 'https://imgur.com/qFkxSgZ.png', label: 'BABI', hadiah: 'Rp 40.000', nominal: 40000},
-  {img: 'https://imgur.com/Ml9UQmv.png', label: 'PRINCESS', hadiah: 'Rp 30.000', nominal: 30000}
+  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'MENANG Rp 12.000', nominal: 12000},
+  {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'MENANG Rp 8.000', nominal: 8000},
+  {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'MENANG Rp 7.000', nominal: 7000},
+  {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'MENANG Rp 2.000', nominal: 2000},
+  {img: 'https://imgur.com/pRHplsF.png', label: 'PENYIHIR', hadiah: 'MENANG Rp 6.000', nominal: 6000},
+  {img: 'https://imgur.com/BE1yANw.png', label: 'BANDITO', hadiah: 'MENANG Rp 15.000.000', nominal: 15000000},
+  {img: 'https://imgur.com/qFkxSgZ.png', label: 'BABI', hadiah: 'MENANG Rp 4.000', nominal: 4000},
+  {img: 'https://imgur.com/Ml9UQmv.png', label: 'PRINCESS', hadiah: 'MENANG Rp 3.000', nominal: 3000}
 ];
 const LOGO_URL = 'https://imgur.com/pmrp0zR.png';
 
@@ -178,16 +178,20 @@ btnClaim.onclick = ()=>{
 };
 
 // Fungsi untuk menampilkan popup hadiah
-function showHadiahPopup(hadiah, nominal) {
+function showHadiahPopup(hadiahData) {
   const popup = document.getElementById('hadiahPopup');
   const amountEl = document.getElementById('popupAmount');
   const subtitleEl = document.getElementById('popupSubtitle');
+  const cardImageEl = document.getElementById('popupCardImage');
+  const cardLabelEl = document.getElementById('popupCardLabel');
   
   // Format rupiah dengan titik pemisah
-  const formattedAmount = `Rp ${nominal.toLocaleString('id-ID')}`;
+  const formattedAmount = `Rp ${hadiahData.nominal.toLocaleString('id-ID')}`;
   
   amountEl.textContent = formattedAmount;
-  subtitleEl.textContent = `Hadiah simulasi dari ${hadiah.split(' ')[1] || 'kartu'} yang Anda pilih!`;
+  subtitleEl.textContent = `Hadiah simulasi dari kartu ${hadiahData.label}!`;
+  cardImageEl.src = hadiahData.img;
+  cardLabelEl.textContent = hadiahData.label;
   
   // Show popup
   popup.classList.add('show');
@@ -484,7 +488,7 @@ function enhancedEnablePilihKartu(arr) {
       
       // Show popup instead of inline message
       setTimeout(() => {
-        showHadiahPopup(h.label, h.nominal);
+        showHadiahPopup(h);
       }, 800);
       
       const msgElement = document.getElementById('msg');
