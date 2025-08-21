@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta name="google-site-verification" content="JqtPYF0Ej11fHBTtRaEZ2GN63auDeXUH94afNyD3EZs" />
+  <base target="_top">
+  <meta charset="UTF-8">
+  <title>MYSTERY CARD SPIN - Game Hiburan</title>
+  <meta name="description" content="Game kartu misteri untuk hiburan. Tidak ada transaksi uang nyata. Entertainment only.">
+  <meta name="keywords" content="game, entertainment, card game, fun, hiburan">
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 55%, #38b6ff 0%, #0a2342 40%, #010a1a 80%),
+        repeating-conic-gradient(from 0deg, #38b6ff33 0deg 10deg, transparent 10deg 20deg),
+        linear-gradient(120deg, #0a2342 0%, #010a1a 100%);
+      background-blend-mode: lighten, screen, normal;
+      color: #eaf3fa;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 12px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: repeating-conic-gradient(from 0deg, #38b6ff55 0deg 6deg, transparent 6deg 18deg);
+      opacity: 0.18;
+      filter: blur(2px);
+    }
+    .main-area {
+      width: 90vw;
+      max-width: 1200px;
+      min-width: 320px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2vw 0 3vw 0;
+      box-sizing: border-box;
+      z-index: 1;
+    }
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      margin: clamp(24px, 4vw, 64px) 0 clamp(18px, 2vw, 36px) 0;
+    }
+    .disclaimer {
+      background: linear-gradient(90deg, #ff6b35, #ff9500);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+      border: 2px solid #ff9500;
+    }
+    /* --- Ubah ke grid 4x2 --- */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: clamp(16px, 4vw, 64px);
+      justify-content: center;
+      align-items: end;
+      margin-bottom: clamp(10px, 2vw, 32px);
+      margin-top: clamp(8px, 2vw, 24px);
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+      min-width: 320px;
+    }
+    /* Tata letak 4-1-4 untuk 9 kartu */
+    .card-layout-4-1-4 {
+      display: grid;
+      grid-template-areas:
+        "a b c d"
+        ".  e  . ."
+        "f g h i";
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: clamp(16px, 4vw, 64px);
+      justify-content: center;
+      align-items: center;
+      margin-bottom: clamp(10px, 2vw, 32px);
+      margin-top: clamp(8px, 2vw, 24px);
+      width: 100%;
+      max-width: 900px;
+      min-width: 320px;
+    }
+    .card-outer {
+      perspective: 1400px;
+      width: clamp(60px, 15vw, 200px);
+      height: clamp(90px, 22vw, 300px);
+      position: relative;
+      transition: transform 0.18s cubic-bezier(.4,2,.6,1);
+    }
+    .card-outer:hover { transform: scale(1.07) translateY(-8px); }
+    .card {
+      width: 100%;
+      height: 100%;
+      border-radius: 22px;
+      box-shadow: 0 8px 40px #3a506b99, 0 2px 12px #c7e0f755;
+      background: #23272f;
+      border: 4px solid #c7e0f7;
+      transition: box-shadow 0.22s, border 0.22s, transform 0.2s;
+      cursor: pointer;
+      position: relative;
+      transform-style: preserve-3d;
+      overflow: hidden;
+    }
+    .card.selected {
+      border: 4px solid #fff;
+      box-shadow: 0 0 60px #c7e0f7cc, 0 4px 24px #3a506bcc;
+      z-index: 2;
+      transform: scale(1.13);
+    }
+    .card.flipped {
+      transform: rotateY(180deg) scale(1.13);
+      cursor: default;
+      pointer-events: none;
+    }
+    .card .face, .card .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      border-radius: inherit;
+      font-size: 44px;
+      transition: background 0.18s;
+    }
+    .card .face {
+      background: linear-gradient(120deg, #23272f 60%, #c7e0f733 100%);
+      box-shadow: 0 2px 12px #c7e0f733;
+    }
+    .card .back {
+      background: linear-gradient(120deg, #f6fafd 90%, #c7e0f7 100%);
+      color: #3a506b;
+      transform: rotateY(180deg);
+      font-size: 22px;
+      flex-direction: column;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      padding: 0 8px;
+      text-align: center;
+      box-shadow: 0 2px 16px #c7e0f755;
+    }
+    .card-anim {
+      animation: cardSpin 0.18s linear infinite;
+    }
+    @keyframes cardSpin {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(360deg); }
+    }
+    .inputgroup {
+      margin: 18px 0 0 0;
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(8px, 2vw, 18px);
+      z-index: 1;
+    }
+    .inputrow {
+      display: flex;
+      gap: clamp(6px, 2vw, 18px);
+      margin-bottom: clamp(8px, 2vw, 18px);
+      width: 100%;
+      max-width: 600px;
+    }
+    .inputrow input {
+      background: #23272f;
+      color: #c7e0f7;
+      border: 2.5px solid #c7e0f7cc;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 210px;
+      padding: clamp(8px, 1vw, 18px) clamp(10px, 2vw, 24px);
+      font-size: clamp(14px, 2vw, 22px);
+      outline: none;
+      transition: border .18s, box-shadow .18s;
+      font-weight: 600;
+      box-shadow: 0 2px 10px #c7e0f722;
+      letter-spacing: 1px;
+    }
+    .inputrow input:focus {
+      border: 2.5px solid #fff;
+      box-shadow: 0 0 12px #c7e0f777;
+      background: #232b3a;
+    }
+    .spin-btn {
+      background: linear-gradient(90deg, #fff 0%, #c7e0f7 40%, #3a506b 130%);
+      color: #23272f;
+      border: none;
+      font-size: clamp(16px, 2vw, 28px);
+      font-weight: 900;
+      border-radius: 12px;
+      padding: clamp(10px, 1vw, 20px) clamp(24px, 4vw, 64px);
+      margin: 10px auto 0 auto;
+      cursor: pointer;
+      box-shadow: 0 2px 18px #c7e0f74b;
+      transition: background .12s, opacity .16s, box-shadow .18s, color .18s;
+      letter-spacing: 1.3px;
+      opacity: .7;
+      outline: none;
+      width: 100%;
+      max-width: 400px;
+      display: block;
+      text-shadow: 0 1px 0 #fff8;
+    }
+    .spin-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+      box-shadow: 0 0 24px #c7e0f7cc;
+      color: #3a506b;
+      background: linear-gradient(90deg, #fff 0%, #c7e0f7 60%, #3a506b 130%);
+    }
+    .spin-btn:active {
+      background: #fff;
+      color: #3a506b;
+    }
+    .desc {
+      font-size: clamp(14px, 2vw, 22px);
+      margin-top: clamp(10px, 2vw, 24px);
+      color: #eaf3fa;
+      text-align: center;
+      text-shadow: 0 1px 0 #000a, 0 0 8px #c7e0f777;
+      font-weight: 600;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+      z-index: 1;
+    }
+    .msg {
+      font-size: 23px;
+      color: #c7e0f7;
+      margin: 18px 0 0 0;
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 2px 12px #3a506bcc, 0 0 8px #fff8;
+      min-height: 32px;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+      z-index: 1;
+      letter-spacing: 1.2px;
+    }
+    .msg span {
+      font-size: 1.1em;
+      font-weight: 900;
+      padding: 2px 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px #fff8;
+      background: #fffbe6;
+    }
+    .msg span[style*="#ffdc00"] {
+      color: #fff;
+      background: #ffb800;
+      border: 2px solid #b88a00;
+      text-shadow: 0 2px 8px #b88a00, 0 0 2px #000, 0 0 1px #fff;
+      box-shadow: 0 2px 16px #ffdc0099;
+      font-weight: 900;
+    }
+    .msg span[style*="#ff3a3a"] {
+      color: #fff;
+      background: linear-gradient(90deg,#ff3a3a 60%,#b80000 100%);
+      box-shadow: 0 2px 16px #ff3a3a99;
+      text-shadow: 0 2px 8px #b80000, 0 0 2px #fff, 0 0 1px #000;
+      border: 2px solid #b80000;
+    }
+    .msg span[style*="BONUS"],
+    .msg span[style*="bonus"],
+    .msg span[style*="#ff7b00"] {
+      color: #fff;
+      background: linear-gradient(90deg,#ff7b00 60%,#b85c00 100%);
+      box-shadow: 0 2px 16px #ff7b0099;
+      text-shadow: 0 2px 8px #b85c00, 0 0 2px #fff, 0 0 1px #000;
+      border: 2px solid #b85c00;
+    }
+    .msg span {
+      /* fallback: jika tidak kena selector di atas, tetap jelas */
+      color: #23272f;
+      background: #fffbe6;
+      border: 2px solid #c7e0f7;
+      text-shadow: 0 1px 0 #fff, 0 0 2px #c7e0f7;
+    }
+    .card .face img,
+    .card .back img {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 2px 12px #c7e0f799);
+    }
+    .card .back img {
+      margin-bottom: 10px;
+    }
+    /* Loading overlay */
+    #loadingOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(10, 35, 66, 0.35); /* lebih transparan */
+      z-index: 99;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      color: #fff;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    #loadingOverlay.show {
+      display: flex;
+    }
+    /* Claim button */
+    #btnClaim {
+      display: none;
+      background: linear-gradient(90deg, #ffdc00 0%, #ff7b00 100%);
+      color: #23272f;
+      border: none;
+      font-size: clamp(16px, 2vw, 28px);
+      font-weight: 900;
+      border-radius: 12px;
+      padding: clamp(10px, 1vw, 20px) clamp(24px, 4vw, 64px);
+      margin: 18px auto 0 auto;
+      cursor: pointer;
+      box-shadow: 0 2px 18px #c7e0f74b;
+      transition: background .12s, opacity .16s, box-shadow .18s, color .18s;
+      letter-spacing: 1.3px;
+      opacity: .95;
+      outline: none;
+      width: 100%;
+      max-width: 400px;
+      text-shadow: 0 1px 0 #fff8;
+      z-index: 2;
+    }
+    #btnClaim.claim-success {
+      background: linear-gradient(90deg, #00ff00 0%, #00cc00 100%);
+      color: #fff;
+    }
+    @media (max-width: 900px) {
+      .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 4vw;
+      }
+    }
+    @media (max-width: 600px) {
+      body {
+        overflow-x: hidden;
+      }
+      .main-area {
+        margin-left: 0;
+        align-items: flex-start;
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      h2 {
+        font-size: 4.2vw;
+        margin-top: 12px;
+        margin-bottom: 10px;
+        text-align: center;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+      .card-grid {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 2vw;
+        box-sizing: border-box;
+      }
+      .card-outer {
+        width: 30vw;
+        height: 44vw;
+        min-width: 60px;
+        min-height: 90px;
+        box-sizing: border-box;
+      }
+      .card {
+        border-radius: 12px;
+      }
+      .inputgroup, .desc, .msg {
+        max-width: 100vw;
+      }
+      .inputrow {
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 260px;
+        margin: 0 auto 0 auto;
+      }
+      .inputrow input {
+        max-width: 120px;
+        width: 100%;
+        font-size: 13px;
+        padding: 7px 10px;
+        box-sizing: border-box;
+        border-radius: 7px;
+      }
+      h2 {
+        font-size: 4.2vw;
+        margin-top: 12px;
+        margin-bottom: 10px;
+        text-align: center;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+      .spin-btn {
+        max-width: 220px;
+        width: 100%;
+        font-size: 14px;
+        padding: 8px 0;
+        margin: 8px auto 0 auto;
+        box-sizing: border-box;
+        border-radius: 8px;
+      }
+      #btnClaim {
+        max-width: 220px;
+        width: 100%;
+        font-size: 14px;
+        padding: 8px 0;
+        margin: 12px auto 0 auto;
+        box-sizing: border-box;
+        border-radius: 8px;
+      }
+      .desc, .msg {
+        font-size: 13px;
+        margin-top: 8px;
+      }
+    }
+    .card-outer[data-pos="0"] { grid-area: a; }
+    .card-outer[data-pos="1"] { grid-area: b; }
+    .card-outer[data-pos="2"] { grid-area: c; }
+    .card-outer[data-pos="3"] { grid-area: d; }
+    .card-outer[data-pos="4"] { grid-area: e; }
+    .card-outer[data-pos="5"] { grid-area: f; }
+    .card-outer[data-pos="6"] { grid-area: g; }
+    .card-outer[data-pos="7"] { grid-area: h; }
+    .card-outer[data-pos="8"] { grid-area: i; }
+  </style>
+</head>
+<body>
+  <div class="main-area">
+    <div class="disclaimer">
+      ⚠️ <strong>DISCLAIMER:</strong> Ini adalah game hiburan semata. Tidak ada transaksi uang sungguhan. Semua "hadiah" hanya simulasi untuk entertainment.
+    </div>
+    <h2>MYSTERY CARD SPIN</h2>
+    <div class="card-grid" id="cardGrid"></div>
+    <div class="inputgroup">
+      <div class="inputrow">
+        <input type="text" id="inputId" placeholder="Masukkan ID" autocomplete="off">
+        <input type="text" id="inputToken" placeholder="Kode SPIN" autocomplete="off">
+      </div>
+      <button class="spin-btn" id="btnSpin" disabled>SPIN</button>
+    </div>
+    <div class="desc" id="desc">Isi ID dan Token, lalu tekan SPIN untuk mengacak kartu!</div>
+    <div class="msg" id="msg"></div>
+    <button id="btnClaim">SIMPAN SKOR</button>
+  </div>
+  <div id="loadingOverlay">Mengacak kartu...</div>
+  <script src="sounds.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
