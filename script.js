@@ -1,6 +1,6 @@
 // Gambar hadiah (bisa diganti dengan gambar lebih keren di folder assets)
 const hadiahList = [
-  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'MENANG Rp 10.000', nominal: 10000},
+  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'MENANG Rp 8.000', nominal: 8000},
   {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'MENANG Rp 3.500', nominal: 3500},
   {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'MENANG Rp 1.500', nominal: 1500},
   {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'MENANG Rp 1.000', nominal: 1000},
@@ -546,4 +546,5 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
 });
+
 
