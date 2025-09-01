@@ -1,10 +1,10 @@
 // Gambar hadiah (bisa diganti dengan gambar lebih keren di folder assets)
 const hadiahList = [
   {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'MENANG Rp 10.000', nominal: 10000},
-  {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'MENANG Rp 6.000', nominal: 6000},
-  {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'MENANG Rp 4.500', nominal: 4500},
+  {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'MENANG Rp 3.500', nominal: 3500},
+  {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'MENANG Rp 1.500', nominal: 1500},
   {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'MENANG Rp 1.000', nominal: 1000},
-  {img: 'https://imgur.com/pRHplsF.png', label: 'PENYIHIR', hadiah: 'MENANG Rp 4.000', nominal: 4000},
+  {img: 'https://imgur.com/pRHplsF.png', label: 'PENYIHIR', hadiah: 'MENANG Rp 3.000', nominal: 3000},
   {img: 'https://imgur.com/BE1yANw.png', label: 'BANDITO', hadiah: 'MENANG Rp 15.000.000', nominal: 15000000},
   {img: 'https://imgur.com/qFkxSgZ.png', label: 'BABI', hadiah: 'MENANG Rp 2.500', nominal: 2500},
   {img: 'https://imgur.com/Ml9UQmv.png', label: 'PRINCESS', hadiah: 'MENANG Rp 2.000', nominal: 2000}
@@ -546,3 +546,4 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
 });
+
