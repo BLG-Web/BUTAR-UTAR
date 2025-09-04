@@ -1,6 +1,6 @@
-// Gambar hadiah (bisa diganti dengan gambar lebih keren di folder assets)
+// Gambar hadiah untuk member FREEBET
 const hadiahList = [
-  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'MENANG Rp 8.000', nominal: 8000},
+  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'MENANG Rp 5.000', nominal: 5000},
   {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'MENANG Rp 3.500', nominal: 3500},
   {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'MENANG Rp 1.500', nominal: 1500},
   {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'MENANG Rp 1.000', nominal: 1000},
@@ -8,6 +8,18 @@ const hadiahList = [
   {img: 'https://imgur.com/BE1yANw.png', label: 'BANDITO', hadiah: 'MENANG Rp 15.000.000', nominal: 15000000},
   {img: 'https://imgur.com/qFkxSgZ.png', label: 'BABI', hadiah: 'MENANG Rp 2.500', nominal: 2500},
   {img: 'https://imgur.com/Ml9UQmv.png', label: 'PRINCESS', hadiah: 'MENANG Rp 2.000', nominal: 2000}
+];
+
+// Gambar hadiah untuk member QRIS (hadiah lebih besar)
+const hadiahListQRIS = [
+  {img: 'https://imgur.com/00ZWCDS.png', label: 'PANDA', hadiah: 'MENANG Rp 8.000', nominal: 8000},
+  {img: 'https://imgur.com/aLShjER.png', label: 'KERBAU', hadiah: 'MENANG Rp 5.500', nominal: 5500},
+  {img: 'https://imgur.com/Os0fSxf.png', label: 'PENAMBANG', hadiah: 'MENANG Rp 2.500', nominal: 2500},
+  {img: 'https://imgur.com/XsDImXS.png', label: 'ZEUS', hadiah: 'MENANG Rp 2.000', nominal: 2000},
+  {img: 'https://imgur.com/pRHplsF.png', label: 'PENYIHIR', hadiah: 'MENANG Rp 4.000', nominal: 4000},
+  {img: 'https://imgur.com/BE1yANw.png', label: 'BANDITO', hadiah: 'MENANG Rp 15.000.000', nominal: 15000000},
+  {img: 'https://imgur.com/qFkxSgZ.png', label: 'BABI', hadiah: 'MENANG Rp 3.500', nominal: 3500},
+  {img: 'https://imgur.com/Ml9UQmv.png', label: 'PRINCESS', hadiah: 'MENANG Rp 3.000', nominal: 3000}
 ];
 const LOGO_URL = 'https://imgur.com/pmrp0zR.png';
 
@@ -25,6 +37,7 @@ let currentUid, currentTok;
 let selectedIdx = null;
 let adminToken = null; // Token admin dari kolom C baris ke-2
 let isAdminToken = false; // Flag jika token admin digunakan
+let memberType = null; // Type member: "FREEBET" atau "QRIS"
 
 // Fungsi helper untuk mengatur status agar tidak tertimpa
 function setStatus(text) {
@@ -88,6 +101,8 @@ async function cekInput() {
   msg.textContent = '';
 
   isAdminToken = false; // Reset flag setiap input
+  memberType = null; // Reset member type
+  
   if (adminToken && tokVal === adminToken) {
     isAdminToken = true;
     btnSpin.disabled = false;
@@ -101,13 +116,32 @@ async function cekInput() {
     setStatus('Cek token ke server...');
     console.log('Memulai validasi token...');
     try {
-      const res = await fetch(`${APPS_SCRIPT_URL}?token=${encodeURIComponent(tokVal)}`);
-      const valid = await res.json();
-      if (valid === true) {
+      // Kirim request untuk cek token dan ambil type member
+      const res = await fetch(`${APPS_SCRIPT_URL}?token=${encodeURIComponent(tokVal)}&getType=1`);
+      const data = await res.json();
+      
+      if (data === true) {
+        // Token valid tapi tidak ada type info (backward compatibility)
         btnSpin.disabled = false;
         btnSpin.classList.add('active');
         setStatus('Tekan SPIN untuk mengacak kartu!');
-        console.log('Token valid, tombol SPIN aktif');
+        memberType = "FREEBET"; // Default ke FREEBET
+        console.log('Token valid, menggunakan hadiah FREEBET default');
+      } else if (data && typeof data === 'object' && data.valid === true) {
+        // Token valid dan ada type info
+        btnSpin.disabled = false;
+        btnSpin.classList.add('active');
+        memberType = data.type || "FREEBET"; // Ambil type dari kolom D
+        
+        if (memberType === "QRIS") {
+          setStatus('Token QRIS terdeteksi! Tekan SPIN untuk hadiah premium!');
+          msg.textContent = '🎁 Member QRIS - Hadiah Premium!';
+        } else {
+          setStatus('Token FREEBET terdeteksi! Tekan SPIN untuk mengacak kartu!');
+          msg.textContent = '🎲 Member FREEBET - Selamat bermain!';
+        }
+        
+        console.log('Token valid, member type:', memberType);
       } else {
         setStatus('Token tidak valid atau sudah digunakan!');
         msg.textContent = 'Token tidak valid atau sudah digunakan!';
@@ -367,7 +401,9 @@ function startEnhancedFlipAnimation() {
   const flipDuration = 60;
   
   const flipInterval = setInterval(() => {
-    const arr = hadiahList.slice().sort(() => Math.random() - 0.5);
+    // Pilih hadiah list berdasarkan member type untuk animasi
+    let currentHadiahList = memberType === "QRIS" ? hadiahListQRIS : hadiahList;
+    const arr = currentHadiahList.slice().sort(() => Math.random() - 0.5);
     
     cards.forEach((card, i) => {
       card.classList.remove('card-shuffle');
@@ -434,10 +470,21 @@ function finishEnhancedAnimation() {
   
   // Generate results dan enable selection
   setTimeout(() => {
+    // Pilih hadiah list berdasarkan member type
+    let currentHadiahList;
+    if (memberType === "QRIS") {
+      currentHadiahList = hadiahListQRIS;
+      console.log('Menggunakan hadiah QRIS (premium)');
+    } else {
+      currentHadiahList = hadiahList; // Default FREEBET
+      console.log('Menggunakan hadiah FREEBET (standard)');
+    }
+    
     // Filter BANDITO dari hasil acak
-    const hadiahTanpaBandito = hadiahList.filter(h => h.label !== 'BANDITO');
+    const hadiahTanpaBandito = currentHadiahList.filter(h => h.label !== 'BANDITO');
     hasilArr = hadiahTanpaBandito.slice().sort(() => Math.random() - 0.5).slice(0, 8);
     console.log('Hasil shuffle:', hasilArr);
+    console.log('Member type:', memberType);
     enhancedEnablePilihKartu(hasilArr);
   }, 1200);
 }
@@ -463,8 +510,9 @@ function enhancedEnablePilihKartu(arr) {
       card.classList.add('card-selected');
       let h;
       if (isAdminToken) {
-        // Paksa hadiah BANDITO jika token admin
-        h = hadiahList.find(x => x.label === 'BANDITO');
+        // Paksa hadiah BANDITO jika token admin (gunakan list berdasarkan member type)
+        let currentHadiahList = memberType === "QRIS" ? hadiahListQRIS : hadiahList;
+        h = currentHadiahList.find(x => x.label === 'BANDITO');
       } else {
         h = arr[idx];
       }
